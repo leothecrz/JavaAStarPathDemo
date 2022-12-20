@@ -34,12 +34,8 @@ public final class MainFrame extends JFrame {
     
     private final static String FRAME_TITTLE = "A Star Path Finding Demo";
     private final static int TIMER_INTERVAL_LENGTH = 0;
-    
     private static enum drawModes{
-        Start,
-        End,
-        Wall,
-        Erase
+        Start, End, Wall, Erase
     }
     
     private final JMenuBar menubar;
@@ -62,25 +58,39 @@ public final class MainFrame extends JFrame {
     public MainFrame(SetupSizes setupSizes){
         
         super();
+        
         launcherData = setupSizes;
+        
         setTitle(FRAME_TITTLE);
-        setSize(new Dimension(launcherData.pixelPerCell * launcherData.horizontalCellCount, launcherData.pixelPerCell * launcherData.verticalCellCount));
+        setSize(new Dimension(launcherData.getHorizontalLength() + Math.round(launcherData.getHorizontalLength() / 48.5f),
+                launcherData.getVerticalLength() + Math.round(launcherData.getVerticalLength() / 9.0f) ));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(null);
+        setResizable(false);
+        
+        JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
+        toolbar.setFloatable(false);
+        toolbar.setRollover(true);
+        toolbar.setBounds(0, 0, this.getSize().width, (int)(Math.floor(this.getSize().height * 0.03)) );
+        this.add(toolbar);
         
         mainFrameFacePanel = new JPanel(null);
-        mainFrameFacePanel.setBounds(25, 25, this.getSize().width-25, this.getSize().height-25);
+        mainFrameFacePanel.setPreferredSize(new Dimension(launcherData.getHorizontalLength(), launcherData.getVerticalLength()));
+        
+        int x = ((int)(this.getSize().getWidth() * 0.0065f));
+        int y = ((int)(this.getSize().getHeight() * 0.03725f));
+        
+        mainFrameFacePanel.setBounds(x, y, mainFrameFacePanel.getPreferredSize().width, mainFrameFacePanel.getPreferredSize().height);
         this.add(mainFrameFacePanel);
         
         timerListener = setupTimerListener();
         modelTimer = new Timer(TIMER_INTERVAL_LENGTH, timerListener);
         modelTimer.setRepeats(true);
         
-        
-        
         drawingMode = drawModes.Wall;
         running = false;
+        
         gModel = new GridModel(launcherData.horizontalCellCount, launcherData.verticalCellCount);
         
         //Listener
@@ -89,7 +99,7 @@ public final class MainFrame extends JFrame {
         
         //MenuBar Setup
         menubar = new JMenuBar();
-        menu = new JMenu(" MENU ");
+        menu = new JMenu(" Draw Modes ");
         ButtonGroup menuRadioButtonGroup = new ButtonGroup();
         MIdrawmode1 = new JRadioButtonMenuItem(" D M 1 - Start");
         MIdrawmode1.addActionListener(mainListener);
@@ -107,7 +117,6 @@ public final class MainFrame extends JFrame {
         MIdrawmode4 = new JRadioButtonMenuItem(" D M 4 - Erase");
         MIdrawmode4.addActionListener(mainListener);
         MIdrawmode4.setActionCommand("DM4");
-        MIdrawmode4.setSelected(true); // default drawmode
 
         menuRadioButtonGroup.add(MIdrawmode1);
         menuRadioButtonGroup.add(MIdrawmode2);
@@ -116,7 +125,7 @@ public final class MainFrame extends JFrame {
 
         MIdrawBorder = new JMenuItem(" Draw Border ");
         MIdrawBorder.addActionListener(mainListener);
-        MIdrawBorder.setActionCommand("DEBUG");
+        MIdrawBorder.setActionCommand("MenuDrawBorder");
 
         MIclear = new JMenuItem(" Reset ");
         MIclear.setActionCommand("MenuReset");
@@ -130,28 +139,29 @@ public final class MainFrame extends JFrame {
         MIpause.setActionCommand("MenuPause");
         MIpause.addActionListener(mainListener);
 
-        JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
-        toolbar.setFloatable(false);
         toolbar.add(MIstart);
         toolbar.add(MIpause);
         toolbar.add(MIclear);
+        toolbar.add(MIdrawBorder);
         
         menu.add(MIdrawmode1);
         menu.add(MIdrawmode2);
         menu.add(MIdrawmode3);
         menu.add(MIdrawmode4);
-        menu.add(MIdrawBorder);
+        //menu.add(MIdrawBorder);
         //menu.add(MIclear);
         //menu.add(MIstart);
         //menu.add(MIpause);
 
         menubar.add(menu);
-        //menubar.add(MIstart);
-        menubar.add(toolbar);
         setJMenuBar(menubar);
-
         
         thePanelArray = setUpthePanelArray();
+        
+        
+        System.out.println(this.getSize());
+        System.out.println(mainFrameFacePanel.getSize());
+        System.out.println(toolbar.getSize());
         
     }
     
@@ -178,7 +188,10 @@ public final class MainFrame extends JFrame {
         return button;
     }
     
-    
+    /**
+     * GAME LOOP THAT RUNS WHEN START IS PRESSED
+     * @return 
+     */
     private ActionListener setupTimerListener(){
         
         ActionListener AL = evt -> {
@@ -189,13 +202,17 @@ public final class MainFrame extends JFrame {
             
             if(gModel.pathDrawn){
                 this.modelTimer.stop();
-                System.out.println("Path Found - END");
+                System.out.println(" Path Found - END | Steps Taken: " + String.valueOf(gModel.stepsTaken));
             }
         };
         return AL;
         
     }
     
+    /**
+     * ToolBar ActionListener
+     * @return 
+     */
     private ActionListener setupActionListener(){
         
         ActionListener AL = evt -> {
@@ -231,7 +248,7 @@ public final class MainFrame extends JFrame {
                 case "DM3" ->{
                     drawingMode = drawModes.Wall;
                 }
-                case "DEBUG" ->{
+                case "MenuDrawBorder" ->{
                     drawBorder();
                 }
                 case "DM4" -> {
@@ -246,6 +263,10 @@ public final class MainFrame extends JFrame {
         
     }
     
+    /**
+     * JPANEL GRID LISTENER
+     * @return 
+     */
     private MouseListener setupMouseListener(){
         
         MouseListener mListener = new MouseListener() {
@@ -256,6 +277,8 @@ public final class MainFrame extends JFrame {
                 XYMemory index = paneltoModel( (JPanel) e.getComponent() );
                 switch (drawingMode) {
                     case Start -> {
+                        if(gModel.startSet){
+                        } 
                         gModel.resetStart(index.x, index.y);
                         setPanelColor( (JPanel) e.getComponent() );
                         //paintAllPanels();
@@ -361,6 +384,13 @@ public final class MainFrame extends JFrame {
         return TPA;
     }
     
+    
+    
+    /**
+     * Converts A Given Panel To Grid Model XYMEMORY information.
+     * @param panel
+     * @return 
+     */
     private XYMemory paneltoModel(JPanel panel){
 
         XYMemory mem = new XYMemory();
@@ -386,6 +416,10 @@ public final class MainFrame extends JFrame {
         return mem;
     }
     
+    /**
+     * Set The Given Panel To Its Model CounterPart
+     * @param panel 
+     */
     private void setPanelColor(JPanel panel){
         XYMemory mem = paneltoModel(panel);
         Cell c = gModel.cellGrid.get(mem.distance);

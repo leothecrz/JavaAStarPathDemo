@@ -2,6 +2,7 @@
 package crz.astarjpath.dialogResources;
 
 public class SetupSizes {
+    
     public int pixelPerCell;
     public int horizontalCellCount;
     public int verticalCellCount;
@@ -28,5 +29,15 @@ public class SetupSizes {
         return SB.toString();
         
     }
+    
+    public int getHorizontalLength(){
+        return pixelPerCell * horizontalCellCount;
+    }
+    
+    public int getVerticalLength(){
+        return pixelPerCell * verticalCellCount;
+    }
+    
+    
     
 }

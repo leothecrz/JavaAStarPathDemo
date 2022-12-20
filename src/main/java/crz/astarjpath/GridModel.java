@@ -26,11 +26,13 @@ public class GridModel {
     public int GoalX;
     public int GoalY;
     
-    boolean pathFound;
-    boolean pathDrawn;
+    public boolean pathFound;
+    public boolean pathDrawn;
     
-    boolean startSet;
-    boolean endSet;
+    public boolean startSet;
+    public boolean endSet;
+    
+    public int stepsTaken;
     
     
     /**
@@ -69,16 +71,17 @@ public class GridModel {
         pathDrawn = false;
         startSet = false;
         endSet = false;
+        stepsTaken = 0;
         currentDrawPath = new XYMemory();
         
         cellGrid = new ArrayList<>(width*height);
-        cameFrom = new ArrayList<>();
+        
+        cameFrom = new ArrayList<>(); //
+        
         cellsPriorityQueue = new PriorityQueue<>((Cell o1, Cell o2) -> {
             if(o1.getF_Cost() > o2.getF_Cost())
                 return 1;
             return 0; });
-        
-        
         
         setNewSize(width, height);
         StartingX = StartingY = -1;
@@ -141,9 +144,6 @@ public class GridModel {
     
     private double updateHcost(int x, int y){
         
-        
-        
-        
         int deltaX =  Math.abs( (GoalX - x) );
         int deltaY =  Math.abs( (GoalY - y ) );
         
@@ -172,7 +172,8 @@ public class GridModel {
         activeCell.updateFCost();
         
         return activeCell.getH_Cost();
-    */
+        */
+        
     }
     
     private boolean notWall(int x, int y){
@@ -215,7 +216,6 @@ public class GridModel {
         if(startSet)
             clearStart();
         
-        
         if(!cellsPriorityQueue.isEmpty())
             emptyCellQueue();
             
@@ -250,7 +250,7 @@ public class GridModel {
     }
     
     public void takeStep(){
-        
+        stepsTaken++;
         if(pathFound){
             
             if(currentDrawPath.x == StartingX && currentDrawPath.y == StartingY){
@@ -258,14 +258,18 @@ public class GridModel {
                 return;
             }
         
-            int cameFromIndex = cameFrom.get(findIndex(currentDrawPath.x, currentDrawPath.y));
+            //int cameFromIndex = cameFrom.get(findIndex(currentDrawPath.x, currentDrawPath.y));
+            Integer cameFromIndex = cellGrid.get(findIndex(currentDrawPath.x, currentDrawPath.y)).getCameFromIndex();
+            
             Cell nextPathCell = cellGrid.get(cameFromIndex);
             currentDrawPath.x = nextPathCell.getX();
             currentDrawPath.y = nextPathCell.getY();
-            cellGrid.get(cameFromIndex).setType(CellTypes.PATH);
+            nextPathCell.setType(CellTypes.PATH);
+            //cellGrid.get(cameFromIndex).setType(CellTypes.PATH);
 
-            System.out.println("\nPATH:\n X: " + String.valueOf(currentDrawPath.x));
+            System.out.println("\nPATH: X: " + String.valueOf(currentDrawPath.x));
             System.out.println(" Y: " + String.valueOf(currentDrawPath.y));
+            
             return;
         }
         
@@ -273,7 +277,7 @@ public class GridModel {
             return;
         
         
-        System.out.println(" \n (1) Size of the Open Set: \n " + String.valueOf(cellsPriorityQueue.size()));
+        
 
         Cell activeCell = cellsPriorityQueue.peek();
         int activeIndex = findIndex(activeCell.getX(), activeCell.getY());
@@ -322,35 +326,41 @@ public class GridModel {
         }
 
         cellGrid.get(activeIndex).setInOpenSet(false);
+        
         cellsPriorityQueue.poll();
 
         System.out.println("\n X: " + String.valueOf(activeCell.getX()));
         System.out.println(" Y: " + String.valueOf(activeCell.getY()));
         System.out.println(" HCost: " + String.valueOf(activeCell.getH_Cost()));
         System.out.println(" GCost: " + String.valueOf(activeCell.getG_Cost()));
-        System.out.println(" (2) OpenSet Size: " + String.valueOf(cellsPriorityQueue.size()));
+        System.out.println(" (1) OpenSet Size: " + String.valueOf(cellsPriorityQueue.size()));
         
         while(!neighbors.isEmpty()){
             XYMemory xActive = neighbors.get(neighbors.size() - 1);
 
             double newGCostValue = activeCell.getG_Cost() + xActive.distance;
             if(newGCostValue < cellGrid.get(findIndex(xActive.x, xActive.y)).getG_Cost()){
-
-                cameFrom.set(findIndex(xActive.x, xActive.y), activeIndex);
-
-                cellGrid.get(findIndex(xActive.x, xActive.y)).setG_Cost(newGCostValue);
-
-                cellGrid.get(findIndex(xActive.x, xActive.y)).setF_Cost(newGCostValue + updateHcost(xActive.x, xActive.y));
-
-                if(!cellGrid.get(findIndex(xActive.x, xActive.y)).isInOpenSet()){
-                    cellGrid.get(findIndex(xActive.x, xActive.y)).setInOpenSet(true);
-                    if(cellGrid.get(findIndex(xActive.x, xActive.y)).getType() != CellTypes.END )
-                        cellGrid.get(findIndex(xActive.x, xActive.y)).setType(CellTypes.UNCHECKED);
+                
+                Cell neighborCell = cellGrid.get(findIndex(xActive.x, xActive.y));
+                //cameFrom.set(findIndex(xActive.x, xActive.y), activeIndex);
+                neighborCell.setCameFromIndex(activeIndex);
+                //cellGrid.get(findIndex(xActive.x, xActive.y)).setCameFromIndex(activeIndex);
+                neighborCell.setG_Cost(newGCostValue);
+                //cellGrid.get(findIndex(xActive.x, xActive.y)).setG_Cost(newGCostValue);
+                updateHcost(xActive.x, xActive.y);
+                //cellGrid.get(findIndex(xActive.x, xActive.y)).setF_Cost(newGCostValue + updateHcost(xActive.x, xActive.y));
+                
+                //if(!cellGrid.get(findIndex(xActive.x, xActive.y)).isInOpenSet()){
+                if(!neighborCell.isInOpenSet()){
+                    //cellGrid.get(findIndex(xActive.x, xActive.y)).setInOpenSet(true);
+                    neighborCell.setInOpenSet(true);
+                    //if(cellGrid.get(findIndex(xActive.x, xActive.y)).getType() != CellTypes.END )
+                    if(neighborCell.getType() != CellTypes.END)
+                        //cellGrid.get(findIndex(xActive.x, xActive.y)).setType(CellTypes.UNCHECKED);
+                        neighborCell.setType(CellTypes.UNCHECKED);
 
                     cellsPriorityQueue.add(cellGrid.get(findIndex(xActive.x, xActive.y)));
-                    
-                    System.out.println(" (3) OpenSet Size: " + String.valueOf(cellsPriorityQueue.size()));
-
+                    cellsPriorityQueue.add(neighborCell);
                 }
             } 
             neighbors.remove(neighbors.size() - 1);
@@ -371,6 +381,7 @@ public class GridModel {
             this.drawGridWall(0, i);
         }
     }
+    
     
     /*
     public static void main(String[] args){
