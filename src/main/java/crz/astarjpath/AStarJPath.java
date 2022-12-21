@@ -17,9 +17,7 @@ public class AStarJPath {
     
     public static void main(String[] args) {
         
-        SwingUtilities.invokeLater(() -> {
-            new Launcher();
-        });
+        SwingUtilities.invokeLater(Launcher::new);
         
     }
     

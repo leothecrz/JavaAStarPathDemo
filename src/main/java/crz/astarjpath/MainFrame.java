@@ -9,6 +9,7 @@ import crz.astarjpath.GridModelResources.XYMemory;
 import crz.astarjpath.dialogResources.SetupSizes;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -34,18 +35,15 @@ public final class MainFrame extends JFrame {
     
     private final static String FRAME_TITTLE = "A Star Path Finding Demo";
     private final static int TIMER_INTERVAL_LENGTH = 0;
-    
     private static enum drawModes{
-        Start,
-        End,
-        Wall,
-        Erase
+        Start, End, Wall, Erase
     }
     
     private final JMenuBar menubar;
     private final JMenu menu;
     private final JMenuItem MIdrawmode1, MIdrawmode2, MIdrawmode3, MIdrawmode4, MIclear, MIstart, MIpause, MIdrawBorder;  
-    private final JPanel mainFrameFacePanel;
+    private final JPanel gridPanel;
+    private final JPanel facePanel;
     
     private final ActionListener mainListener, timerListener;
     private final MouseListener mouseListenr;
@@ -59,29 +57,53 @@ public final class MainFrame extends JFrame {
     private boolean running;
     private drawModes drawingMode;
     
+    public MouseListener debugPointerListener;
+    
+    
     public MainFrame(SetupSizes setupSizes){
         
         super();
+        
         launcherData = setupSizes;
-        setTitle(FRAME_TITTLE);
-        setSize(new Dimension(launcherData.pixelPerCell * launcherData.horizontalCellCount, launcherData.pixelPerCell * launcherData.verticalCellCount));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(null);
-        
-        mainFrameFacePanel = new JPanel(null);
-        mainFrameFacePanel.setBounds(25, 25, this.getSize().width-25, this.getSize().height-25);
-        this.add(mainFrameFacePanel);
-        
-        timerListener = setupTimerListener();
-        modelTimer = new Timer(TIMER_INTERVAL_LENGTH, timerListener);
-        modelTimer.setRepeats(true);
-        
-        
-        
         drawingMode = drawModes.Wall;
         running = false;
         gModel = new GridModel(launcherData.horizontalCellCount, launcherData.verticalCellCount);
+        
+        
+        
+        int width = Math.round( (float)launcherData.getHorizontalLength() * 1.020408f );
+        int height = Math.round( (float)launcherData.getVerticalLength() * 1.115789f ); // 7% more needed that caclculated used 107/95 insted of 100/95. Tool Bar Effects Maybe
+        
+        System.out.println("\n CALC-WIDTH = " + width);
+        System.out.println(" CALC-Height = " + height);    
+        this.setPreferredSize(new Dimension(width, height));
+        this.setSize(this.getPreferredSize());
+        System.out.println(this.getSize());
+        
+        //Properties
+        setTitle(FRAME_TITTLE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
+        setResizable(true);
+        
+        //FacePanel
+        facePanel = new JPanel(null);
+        facePanel.setPreferredSize(this.getSize());
+        facePanel.setSize(facePanel.getPreferredSize());
+        facePanel.setBackground(Color.BLACK);
+        
+        //ToolBar
+        JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
+        toolbar.setFloatable(false);
+        toolbar.setRollover(true);
+        toolbar.setBounds(0, 0, this.getSize().width, (int)(Math.floor( (float)this.getSize().height * 0.03f)) );
+        facePanel.add(toolbar);
+        
+        //Timer
+        timerListener = setupTimerListener();
+        modelTimer = new Timer(TIMER_INTERVAL_LENGTH, timerListener);
+        modelTimer.setRepeats(true);
         
         //Listener
         mouseListenr = setupMouseListener();
@@ -89,25 +111,25 @@ public final class MainFrame extends JFrame {
         
         //MenuBar Setup
         menubar = new JMenuBar();
-        menu = new JMenu(" MENU ");
+        menu = new JMenu(" Draw Modes ");
+        
         ButtonGroup menuRadioButtonGroup = new ButtonGroup();
-        MIdrawmode1 = new JRadioButtonMenuItem(" D M 1 - Start");
+        MIdrawmode1 = new JRadioButtonMenuItem(" D M 1 - Start ");
         MIdrawmode1.addActionListener(mainListener);
         MIdrawmode1.setActionCommand("DM1");
 
-        MIdrawmode2 = new JRadioButtonMenuItem(" D M 2 - End");
+        MIdrawmode2 = new JRadioButtonMenuItem(" D M 2 - End ");
         MIdrawmode2.addActionListener(mainListener);
         MIdrawmode2.setActionCommand("DM2");
 
-        MIdrawmode3 = new JRadioButtonMenuItem(" D M 3 - Wall");
+        MIdrawmode3 = new JRadioButtonMenuItem(" D M 3 - Wall ");
         MIdrawmode3.addActionListener(mainListener);
         MIdrawmode3.setActionCommand("DM3");
         MIdrawmode3.setSelected(true); // default drawmode
         
-        MIdrawmode4 = new JRadioButtonMenuItem(" D M 4 - Erase");
+        MIdrawmode4 = new JRadioButtonMenuItem(" D M 4 - Erase ");
         MIdrawmode4.addActionListener(mainListener);
         MIdrawmode4.setActionCommand("DM4");
-        MIdrawmode4.setSelected(true); // default drawmode
 
         menuRadioButtonGroup.add(MIdrawmode1);
         menuRadioButtonGroup.add(MIdrawmode2);
@@ -116,7 +138,7 @@ public final class MainFrame extends JFrame {
 
         MIdrawBorder = new JMenuItem(" Draw Border ");
         MIdrawBorder.addActionListener(mainListener);
-        MIdrawBorder.setActionCommand("DEBUG");
+        MIdrawBorder.setActionCommand("MenuDrawBorder");
 
         MIclear = new JMenuItem(" Reset ");
         MIclear.setActionCommand("MenuReset");
@@ -130,30 +152,74 @@ public final class MainFrame extends JFrame {
         MIpause.setActionCommand("MenuPause");
         MIpause.addActionListener(mainListener);
 
-        JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
-        toolbar.setFloatable(false);
         toolbar.add(MIstart);
         toolbar.add(MIpause);
         toolbar.add(MIclear);
+        toolbar.add(MIdrawBorder);
         
         menu.add(MIdrawmode1);
         menu.add(MIdrawmode2);
         menu.add(MIdrawmode3);
         menu.add(MIdrawmode4);
-        menu.add(MIdrawBorder);
+        //menu.add(MIdrawBorder);
         //menu.add(MIclear);
         //menu.add(MIstart);
         //menu.add(MIpause);
 
         menubar.add(menu);
-        //menubar.add(MIstart);
-        menubar.add(toolbar);
         setJMenuBar(menubar);
-
         
+        //gridPanel
+        gridPanel = new JPanel(null);
+        int x = (int) Math.floor(( (double)this.getSize().width * 0.01));
+        int y = (int) Math.floor(( (double)this.getSize().height * 0.04));
+        System.out.println(x + " :X | Y: " + y);
         thePanelArray = setUpthePanelArray();
+        gridPanel.setBounds(x, y, launcherData.getHorizontalLength(), launcherData.getVerticalLength());
+        gridPanel.setBackground(Color.BLACK);
+        
+        facePanel.add(gridPanel);
+        this.add(facePanel);
+        
+        //System.out.println(this.getSize());
+        System.out.println(gridPanel.getBounds());
+        //System.out.println(toolbar.getSize());
+        
+        debugPointerListener = debugMouseListener();
+        this.addMouseListener(debugPointerListener);
+        
         
     }
+    
+    private MouseListener debugMouseListener(){
+        return new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                
+                System.err.println("\n" + e.getButton());
+                System.err.println(" Point:");
+                System.err.println(e.getPoint());
+                
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        };
+    }
+    
     
     private JButton makeButton(String imageName, String actionCommand, String toolTipText ,String altText, ActionListener listener) {
     //Look for the image.
@@ -178,7 +244,10 @@ public final class MainFrame extends JFrame {
         return button;
     }
     
-    
+    /**
+     * GAME LOOP THAT RUNS WHEN START IS PRESSED
+     * @return 
+     */
     private ActionListener setupTimerListener(){
         
         ActionListener AL = evt -> {
@@ -189,13 +258,17 @@ public final class MainFrame extends JFrame {
             
             if(gModel.pathDrawn){
                 this.modelTimer.stop();
-                System.out.println("Path Found - END");
+                System.out.println(" Path Found - END | Steps Taken: " + String.valueOf(gModel.stepsTaken));
             }
         };
         return AL;
         
     }
     
+    /**
+     * ToolBar ActionListener
+     * @return 
+     */
     private ActionListener setupActionListener(){
         
         ActionListener AL = evt -> {
@@ -231,7 +304,7 @@ public final class MainFrame extends JFrame {
                 case "DM3" ->{
                     drawingMode = drawModes.Wall;
                 }
-                case "DEBUG" ->{
+                case "MenuDrawBorder" ->{
                     drawBorder();
                 }
                 case "DM4" -> {
@@ -246,21 +319,42 @@ public final class MainFrame extends JFrame {
         
     }
     
+    /**
+     * JPANEL GRID LISTENER
+     * @return 
+     */
     private MouseListener setupMouseListener(){
         
         MouseListener mListener = new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                
                 if(running)
                     return;
+                
+                if(e.getButton() != MouseEvent.BUTTON1)
+                    return;
+                
                 XYMemory index = paneltoModel( (JPanel) e.getComponent() );
                 switch (drawingMode) {
                     case Start -> {
+                        if(gModel.startSet){
+                            
+                            gModel.setTypeTo(gModel.findIndex(gModel.GoalX, gModel.GoalY), Cell.CellTypes.EMPTY);
+                            setPanelColor(pointToPanel(gModel.StartingX, gModel.StartingY));
+                            
+                        } 
                         gModel.resetStart(index.x, index.y);
                         setPanelColor( (JPanel) e.getComponent() );
                         //paintAllPanels();
                     }
                     case End -> {
+                        if(gModel.endSet){
+                            
+                            gModel.setTypeTo(gModel.findIndex(gModel.GoalX, gModel.GoalY), Cell.CellTypes.EMPTY);
+                            setPanelColor(pointToPanel(gModel.GoalX, gModel.GoalY));
+                            
+                        }
                         gModel.resetGoal(index.x, index.y);
                         setPanelColor( (JPanel) e.getComponent() );
                         //paintAllPanels();
@@ -353,7 +447,7 @@ public final class MainFrame extends JFrame {
                 loopJPanel.setBackground(Color.LIGHT_GRAY);
 
                 //paneltoModel(activeGPanel);
-                mainFrameFacePanel.add(loopJPanel);
+                gridPanel.add(loopJPanel);
                 TPA.add(loopJPanel);
             }
         }
@@ -361,6 +455,17 @@ public final class MainFrame extends JFrame {
         return TPA;
     }
     
+    private JPanel pointToPanel(int x, int y){
+        int index = gModel.findIndex(x, y);
+        return thePanelArray.get(index);
+    }
+    
+    
+    /**
+     * Converts A Given Panel To Grid Model XYMEMORY information.
+     * @param panel
+     * @return 
+     */
     private XYMemory paneltoModel(JPanel panel){
 
         XYMemory mem = new XYMemory();
@@ -386,6 +491,10 @@ public final class MainFrame extends JFrame {
         return mem;
     }
     
+    /**
+     * Set The Given Panel To Its Model CounterPart
+     * @param panel 
+     */
     private void setPanelColor(JPanel panel){
         XYMemory mem = paneltoModel(panel);
         Cell c = gModel.cellGrid.get(mem.distance);

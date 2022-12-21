@@ -6,7 +6,7 @@ package crz.astarjpath.GridModelResources;
  * 
  * @author LeothEcRz
  */
-public class Cell {
+public final class Cell {
     
     /**
      * Possible States of the Cell
@@ -19,6 +19,7 @@ public class Cell {
     private CellTypes type;
     private final int x;
     private final int y;
+    
     
     private double G_Cost = Double.POSITIVE_INFINITY;
     private double H_Cost = Double.POSITIVE_INFINITY;
@@ -36,11 +37,14 @@ public class Cell {
         this.y = y;
         type = CellTypes.EMPTY;
         inOpenSet = false;
+        cameFromIndex = null;
     }
-    
+
     public Integer getCameFromIndex(){
+        if(this.cameFromIndex == null)
+            return -1;
         return this.cameFromIndex;
-    }
+    }    
     
     public void setCameFromIndex(Integer camefrom){
         this.cameFromIndex = camefrom;
@@ -100,5 +104,7 @@ public class Cell {
     public int getY() {
         return y;
     }
+    
+    
     
 }
