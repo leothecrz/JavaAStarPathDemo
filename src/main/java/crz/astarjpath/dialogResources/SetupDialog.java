@@ -171,11 +171,11 @@ public final class SetupDialog extends JDialog{
                 if(!overrideLimit){
                     
                     int gridMaxWidth = Math.round( MAX_GRID_WIDTH_PERCENT * (float)screenSize.getWidth() );
-                    System.out.println("H: " + setupSizes.getHorizontalLength());
+                    System.out.println("\n GM H: " + setupSizes.getHorizontalLength());
                         System.out.print(" PossibleMAX:" + gridMaxWidth);
                     
                     int gridMaxHeight = Math.round( MAX_GRID_HEIGHT_PERCENT *  (float)screenSize.getHeight() );
-                    System.out.println("V: " + setupSizes.getVerticalLength());
+                    System.out.println("\n GM V: " + setupSizes.getVerticalLength());
                         System.out.print(" PossibleMAX:" + gridMaxHeight);
                         
                     if( setupSizes.getHorizontalLength() >= gridMaxWidth){ //Horizontal

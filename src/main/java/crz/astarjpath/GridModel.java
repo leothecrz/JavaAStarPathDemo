@@ -43,7 +43,7 @@ public class GridModel {
     /**
      * Path Memory
      */
-    ArrayList<Integer> cameFrom;
+    //ArrayList<Integer> cameFrom;
     
     /**
      * The Open Set
@@ -53,7 +53,7 @@ public class GridModel {
     /**
      * A Step's Memory of its neighbors.
      */
-    ArrayList<XYMemory> neighbors = new ArrayList<>();
+    ArrayList<XYMemory> neighbors;
 
     /**
      * DrawingPath Pointer
@@ -76,7 +76,7 @@ public class GridModel {
         
         cellGrid = new ArrayList<>(width*height);
         
-        cameFrom = new ArrayList<>(); //
+        //cameFrom = new ArrayList<>(); //
         
         cellsPriorityQueue = new PriorityQueue<>((Cell o1, Cell o2) -> {
             if(o1.getF_Cost() > o2.getF_Cost())
@@ -102,14 +102,14 @@ public class GridModel {
             cellGrid.remove(cellGrid.size()-1);
         }
         
-        while(!cameFrom.isEmpty()){
-            cameFrom.remove(cameFrom.size()-1);
-        }
-        
+        //while(!cameFrom.isEmpty()){
+        //    cameFrom.remove(cameFrom.size()-1);
+        //}
+        //
         for(int i=0; i<this.height; i++){
             for(int j=0; j <this.width; j++){
                 cellGrid.add(new Cell(j, i));
-                cameFrom.add(-1);
+        //        cameFrom.add(-1);
             }
         }
         
@@ -273,11 +273,13 @@ public class GridModel {
             return;
         }
         
-        if(cellsPriorityQueue.isEmpty())
+        if(cellsPriorityQueue.isEmpty()){
+            System.err.println("EMPTY OPEN SET NO PATH");
             return;
+        }
+            
         
-        
-        
+       
 
         Cell activeCell = cellsPriorityQueue.peek();
         int activeIndex = findIndex(activeCell.getX(), activeCell.getY());

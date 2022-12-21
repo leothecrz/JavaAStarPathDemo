@@ -2,10 +2,11 @@ crz\astarjpath\MainFrame.class
 crz\astarjpath\MainFrame$drawModes.class
 crz\astarjpath\GridModelResources\Cell$CellTypes.class
 crz\astarjpath\GridModelResources\Cell.class
-crz\astarjpath\dialogResources\SetupDialog$states.class
+crz\astarjpath\MainFrame$3.class
 crz\astarjpath\dialogResources\SetupDialog.class
 crz\astarjpath\MainFrame$2.class
 crz\astarjpath\Launcher.class
+crz\astarjpath\dialogResources\SetupDialog$2.class
 crz\astarjpath\AStarJPath.class
 crz\astarjpath\GridModel.class
 crz\astarjpath\dialogResources\SetupDialog$1.class
