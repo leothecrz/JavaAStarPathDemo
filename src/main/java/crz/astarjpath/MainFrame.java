@@ -7,25 +7,16 @@ package crz.astarjpath;
 import crz.astarjpath.GridModelResources.Cell;
 import crz.astarjpath.GridModelResources.XYMemory;
 import crz.astarjpath.dialogResources.SetupSizes;
-import java.awt.Color;
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
 import java.util.ArrayList;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JToolBar;
-import javax.swing.Timer;
+import javax.swing.*;
 
 /**
  *
@@ -38,10 +29,11 @@ public final class MainFrame extends JFrame {
     private static enum drawModes{
         Start, End, Wall, Erase
     }
-    
-    private final JMenuBar menubar;
-    private final JMenu menu;
-    private final JMenuItem MIdrawmode1, MIdrawmode2, MIdrawmode3, MIdrawmode4, MIclear, MIstart, MIpause, MIdrawBorder;  
+
+    private final JToolBar toolbar;
+    private final JPopupMenu menu;
+    private final JMenuItem MIdrawmode1, MIdrawmode2, MIdrawmode3, MIdrawmode4;
+    private final JButton MIclear, MIstart, MIpause, MIdrawBorder, MImenu;
     private final JPanel gridPanel;
     private final JPanel facePanel;
     
@@ -68,16 +60,16 @@ public final class MainFrame extends JFrame {
         drawingMode = drawModes.Wall;
         running = false;
         gModel = new GridModel(launcherData.horizontalCellCount, launcherData.verticalCellCount);
-        
-        
-        
+
         int width = Math.round( (float)launcherData.getHorizontalLength() * 1.020408f );
-        int height = Math.round( (float)launcherData.getVerticalLength() * 1.115789f ); // 7% more needed that caclculated used 107/95 insted of 100/95. Tool Bar Effects Maybe
+        int height = Math.round( (float)launcherData.getVerticalLength() * 1.094737f ); // 7% more needed that caclculated used 107/95 insted of 100/95. Tool Bar Effects Maybe
         
         System.out.println("\n CALC-WIDTH = " + width);
         System.out.println(" CALC-Height = " + height);    
+
         this.setPreferredSize(new Dimension(width, height));
         this.setSize(this.getPreferredSize());
+
         System.out.println(this.getSize());
         
         //Properties
@@ -94,10 +86,11 @@ public final class MainFrame extends JFrame {
         facePanel.setBackground(Color.BLACK);
         
         //ToolBar
-        JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
+        toolbar = new JToolBar(JToolBar.HORIZONTAL);
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
-        toolbar.setBounds(0, 0, this.getSize().width, (int)(Math.floor( (float)this.getSize().height * 0.03f)) );
+        toolbar.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        toolbar.setBounds(0, 0, this.getSize().width, (int) (Math.floor( ((float)this.getSize().height * 3f))/100f) ); //
         facePanel.add(toolbar);
         
         //Timer
@@ -110,8 +103,9 @@ public final class MainFrame extends JFrame {
         mainListener = setupActionListener();
         
         //MenuBar Setup
-        menubar = new JMenuBar();
-        menu = new JMenu(" Draw Modes ");
+        //menubar = new JMenuBar();
+        //menu = new JMenu(" Draw Modes ");
+        menu = new JPopupMenu();
         
         ButtonGroup menuRadioButtonGroup = new ButtonGroup();
         MIdrawmode1 = new JRadioButtonMenuItem(" D M 1 - Start ");
@@ -136,38 +130,36 @@ public final class MainFrame extends JFrame {
         menuRadioButtonGroup.add(MIdrawmode3);
         menuRadioButtonGroup.add(MIdrawmode4);
 
-        MIdrawBorder = new JMenuItem(" Draw Border ");
+        menu.add(MIdrawmode1);
+        menu.add(MIdrawmode2);
+        menu.add(MIdrawmode3);
+        menu.add(MIdrawmode4);
+
+        MIdrawBorder = new JButton(" Draw Border ");
         MIdrawBorder.addActionListener(mainListener);
         MIdrawBorder.setActionCommand("MenuDrawBorder");
 
-        MIclear = new JMenuItem(" Reset ");
+        MIclear = new JButton(" Reset ");
         MIclear.setActionCommand("MenuReset");
         MIclear.addActionListener(mainListener);
         
-        MIstart = new JMenuItem(" Start ");
+        MIstart = new JButton(" Start ");
         MIstart.setActionCommand("MenuStart");
         MIstart.addActionListener(mainListener);
 
-        MIpause = new JMenuItem(" Pause ");
+        MIpause = new JButton(" Pause ");
         MIpause.setActionCommand("MenuPause");
         MIpause.addActionListener(mainListener);
+
+        MImenu = new JButton(" Menu ");
+        MImenu.setActionCommand("MenuMenu");
+        MImenu.addActionListener(mainListener);
 
         toolbar.add(MIstart);
         toolbar.add(MIpause);
         toolbar.add(MIclear);
         toolbar.add(MIdrawBorder);
-        
-        menu.add(MIdrawmode1);
-        menu.add(MIdrawmode2);
-        menu.add(MIdrawmode3);
-        menu.add(MIdrawmode4);
-        //menu.add(MIdrawBorder);
-        //menu.add(MIclear);
-        //menu.add(MIstart);
-        //menu.add(MIpause);
-
-        menubar.add(menu);
-        setJMenuBar(menubar);
+        toolbar.add(MImenu);
         
         //gridPanel
         gridPanel = new JPanel(null);
@@ -190,6 +182,8 @@ public final class MainFrame extends JFrame {
         
         
     }
+
+
     
     private MouseListener debugMouseListener(){
         return new MouseListener() {
@@ -246,22 +240,21 @@ public final class MainFrame extends JFrame {
     
     /**
      * GAME LOOP THAT RUNS WHEN START IS PRESSED
-     * @return 
+     * @return GAME LOOP ActionListener
      */
     private ActionListener setupTimerListener(){
-        
-        ActionListener AL = evt -> {
-            for(int i=0; i<30; i++)
+
+        return evt -> {
+            for(int i=0; i<2; i++)
                 gModel.takeStep();
-            
+
             paintAllPanels();
-            
+
             if(gModel.pathDrawn){
                 this.modelTimer.stop();
                 System.out.println(" Path Found - END | Steps Taken: " + String.valueOf(gModel.stepsTaken));
             }
         };
-        return AL;
         
     }
     
@@ -270,20 +263,21 @@ public final class MainFrame extends JFrame {
      * @return 
      */
     private ActionListener setupActionListener(){
-        
-        ActionListener AL = evt -> {
+
+        return evt -> {
             switch (evt.getActionCommand()) {
+                case "MenuMenu" -> menu.show( this.toolbar, MImenu.getX(), MImenu.getY()+MImenu.getHeight());
                 case "MenuStart" -> {
                     if(running)
                         return;
-                    
+
                     running = true;
                     modelTimer.start();
                 }
                 case "MenuPause" -> {
                     if(!running)
                         return;
-                    
+
                     running = false;
                     modelTimer.stop();
                 }
@@ -295,142 +289,102 @@ public final class MainFrame extends JFrame {
                     gModel.resetBoard();
                     paintAllPanels();
                 }
-                case "DM1" ->{
-                    drawingMode = drawModes.Start;
-                }
-                case "DM2" ->{
-                    drawingMode = drawModes.End;
-                }
-                case "DM3" ->{
-                    drawingMode = drawModes.Wall;
-                }
-                case "MenuDrawBorder" ->{
-                    drawBorder();
-                }
-                case "DM4" -> {
-                    drawingMode = drawModes.Erase;
-                }
-                
+                case "DM1" -> drawingMode = drawModes.Start;
+                case "DM2" -> drawingMode = drawModes.End;
+                case "DM3" -> drawingMode = drawModes.Wall;
+                case "MenuDrawBorder" -> drawBorder();
+                case "DM4" -> drawingMode = drawModes.Erase;
+
                 default -> throw new AssertionError();
             };
         };
         
-        return AL;
-        
     }
     
     /**
-     * JPANEL GRID LISTENER
+     * PANEL GRID LISTENER
      * @return 
      */
     private MouseListener setupMouseListener(){
-        
-        MouseListener mListener = new MouseListener() {
+
+        return new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                
+
                 if(running)
+                    return; // Cant Click While Running
+
+                if(e.getButton() == MouseEvent.BUTTON1){
+                    m1ButtonClick(e);
                     return;
-                
-                if(e.getButton() != MouseEvent.BUTTON1)
-                    return;
-                
-                XYMemory index = paneltoModel( (JPanel) e.getComponent() );
-                switch (drawingMode) {
-                    case Start -> {
-                        if(gModel.startSet){
-                            
-                            gModel.setTypeTo(gModel.findIndex(gModel.GoalX, gModel.GoalY), Cell.CellTypes.EMPTY);
-                            setPanelColor(pointToPanel(gModel.StartingX, gModel.StartingY));
-                            
-                        } 
-                        gModel.resetStart(index.x, index.y);
-                        setPanelColor( (JPanel) e.getComponent() );
-                        //paintAllPanels();
-                    }
-                    case End -> {
-                        if(gModel.endSet){
-                            
-                            gModel.setTypeTo(gModel.findIndex(gModel.GoalX, gModel.GoalY), Cell.CellTypes.EMPTY);
-                            setPanelColor(pointToPanel(gModel.GoalX, gModel.GoalY));
-                            
-                        }
-                        gModel.resetGoal(index.x, index.y);
-                        setPanelColor( (JPanel) e.getComponent() );
-                        //paintAllPanels();
-                    }
-                    case Wall -> {
-                        gModel.drawGridWall(index.x, index.y);
-                        setPanelColor( (JPanel) e.getComponent() );
-                        //paintAllPanels();
-                    }
-                    case Erase ->{
-                        gModel.setTypeTo(index.x, index.y, Cell.CellTypes.EMPTY);
-                        setPanelColor( (JPanel) e.getComponent() );
-                        //paintAllPanels();
-                    }
-                    default -> throw new AssertionError();
                 }
-                
+
+
+
+
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
-                
+
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                
+
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
                 if(running)
                     return;
-                
-                Color bgColor = e.getComponent().getBackground();
-                int red = bgColor.getRed() + 10;
-                int blue = bgColor.getBlue() + 10;
-                int green = bgColor.getGreen() + 10;
-                if(red>255) red=255;
-                if(blue>255) blue=255;
-                if(green>255) green=255;
-                
-                e.getComponent().setBackground(new Color(red,blue,green));
-                    
-                
-                //e.getComponent().setBackground(e.getComponent().getBackground().brighter());
+
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 if(running)
                     return;
-                
-                Color bgColor = e.getComponent().getBackground();
-                int red = bgColor.getRed() - 10;
-                int blue = bgColor.getBlue() - 10;
-                int green = bgColor.getGreen() - 10;
-                
-                if(red<0) red=0;
-                if(blue<0) blue=0;
-                if(green<0) green=0;
-                
-                
-                e.getComponent().setBackground(new Color(red,blue,green));
-
-                
-                //e.getComponent().setBackground(e.getComponent().getBackground().darker());
 
             }
         };
-                
-        return mListener;
         
     }
-    
+
+    private void m1ButtonClick(MouseEvent e){
+        XYMemory index = paneltoModel( (JPanel) e.getComponent() );
+        switch (drawingMode) {
+            case Start -> {
+
+                if(gModel.startSet)
+                    frameAllignedSetType(gModel.StartingX,gModel.StartingY, Cell.CellTypes.EMPTY);
+                gModel.resetStart(index.x, index.y);
+                frameAllignedSetType(index.x, index.y, Cell.CellTypes.START);
+            }
+            case End -> {
+
+                if(gModel.endSet)
+                    frameAllignedSetType(gModel.GoalX,gModel.GoalY, Cell.CellTypes.EMPTY);
+                gModel.resetGoal(index.x, index.y);
+                frameAllignedSetType(index.x,index.y, Cell.CellTypes.END);
+
+            }
+            case Wall ->
+                frameAllignedSetType(index.x,index.y, Cell.CellTypes.GRIDWALL);
+
+            case Erase ->
+                frameAllignedSetType(index.x,index.y, Cell.CellTypes.EMPTY);
+
+            default -> throw new AssertionError();
+        }
+    }
+
+    private void frameAllignedSetType(int x, int y, Cell.CellTypes type){
+        gModel.setTypeTo(x,y,type);
+        setPanelColor(pointToPanel(x,y));
+    }
     private ArrayList<JPanel> setUpthePanelArray(){
+
         JPanel loopJPanel;
         ArrayList<JPanel> TPA = new ArrayList<>(launcherData.horizontalCellCount * launcherData.verticalCellCount);
         
@@ -438,15 +392,15 @@ public final class MainFrame extends JFrame {
             for(int j=0; j < launcherData.horizontalCellCount; j++){
                 
                 loopJPanel = new JPanel();
-                loopJPanel.setBounds( j*launcherData.pixelPerCell+0, i*launcherData.pixelPerCell+0, launcherData.pixelPerCell-2, launcherData.pixelPerCell-2);
+                loopJPanel.setBounds( j*launcherData.pixelPerCell, i*launcherData.pixelPerCell, launcherData.pixelPerCell-2, launcherData.pixelPerCell-2);
                 loopJPanel.addMouseListener(mouseListenr);
-                
-                //activeGPanel.add(new JLabel());
-                
+
+                //loopJPanel.add(new JLabel( "X: " + String.valueOf(j) ) );
+                //loopJPanel.add(new JLabel( "Y: " + String.valueOf(i) ) );
+
                 loopJPanel.setName( String.valueOf(j) + "_" +String.valueOf(i) ); // "i_j" BAD WORK AROUND
                 loopJPanel.setBackground(Color.LIGHT_GRAY);
 
-                //paneltoModel(activeGPanel);
                 gridPanel.add(loopJPanel);
                 TPA.add(loopJPanel);
             }
@@ -459,8 +413,7 @@ public final class MainFrame extends JFrame {
         int index = gModel.findIndex(x, y);
         return thePanelArray.get(index);
     }
-    
-    
+
     /**
      * Converts A Given Panel To Grid Model XYMEMORY information.
      * @param panel
@@ -499,34 +452,34 @@ public final class MainFrame extends JFrame {
         XYMemory mem = paneltoModel(panel);
         Cell c = gModel.cellGrid.get(mem.distance);
         switch (c.getType()) {
-            case CHECKED -> {
+            case CHECKED ->
                 panel.setBackground(Color.ORANGE);
-            }
-            case EMPTY -> {
+
+            case EMPTY ->
                 panel.setBackground(Color.LIGHT_GRAY);
-            }
-            case END -> {
+
+            case END ->
                 panel.setBackground(Color.RED);
-            }
-            case GRIDWALL -> {
+
+            case GRIDWALL ->
                 panel.setBackground(Color.DARK_GRAY);
-            }
-            case PATH -> {
+
+            case PATH ->
                 panel.setBackground(Color.CYAN);
-            }
-            case START -> {
+
+            case START ->
                 panel.setBackground(Color.GREEN);
-            }
-            case UNCHECKED -> {
+
+            case UNCHECKED ->
                 panel.setBackground(Color.GRAY);
-            }     
+
             default -> throw new AssertionError();
         }
     }
     
     private void paintAllPanels(){
-        for(int i=0; i<thePanelArray.size(); i++){
-            setPanelColor(thePanelArray.get(i));
+        for (JPanel jPanel : thePanelArray) {
+            setPanelColor(jPanel);
         }
     }
     
@@ -534,5 +487,6 @@ public final class MainFrame extends JFrame {
         gModel.drawBorder();
         paintAllPanels();
     }
+
     
 }

@@ -18,7 +18,8 @@ public class AStarJPath {
     public static void main(String[] args) {
         
         SwingUtilities.invokeLater(Launcher::new);
-        
+
+
     }
     
     
