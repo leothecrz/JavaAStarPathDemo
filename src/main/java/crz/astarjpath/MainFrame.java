@@ -6,6 +6,7 @@ package crz.astarjpath;
 
 import crz.astarjpath.GridModelResources.Cell;
 import crz.astarjpath.GridModelResources.XYMemory;
+import crz.astarjpath.MainFrameResources.GridPanel;
 import crz.astarjpath.dialogResources.SetupSizes;
 
 import java.awt.Dimension;
@@ -26,6 +27,7 @@ import javax.swing.event.ChangeListener;
 public final class MainFrame extends JFrame {
 
     private final static int TIMER_INTERVAL_LENGTH = 0;
+    private final static int SIM_STEPS_PERUPDATE= 1;
 
     public static enum drawModes{
         Start, End, Wall, Erase
@@ -45,7 +47,8 @@ public final class MainFrame extends JFrame {
 
     private final MouseListener panelGridMouseListener;
     
-    private final ArrayList<JPanel> thePanelArray;
+    private final ArrayList<GridPanel> thePanelArray;
+    
     private final GridModel gModel; 
     
     private final SetupSizes launcherData;
@@ -235,6 +238,35 @@ public final class MainFrame extends JFrame {
 
     }
 
+        
+    private ArrayList<GridPanel> setUpthePanelArray(){
+
+        GridPanel loopJPanel;
+        ArrayList<GridPanel> TPA = new ArrayList<>(launcherData.horizontalCellCount * launcherData.verticalCellCount);
+        
+        for(int i=0; i < launcherData.verticalCellCount;i++){
+            for(int j=0; j < launcherData.horizontalCellCount; j++){
+                
+                //loopJPanel = new JPanel();
+                loopJPanel = new GridPanel(launcherData, i, j, panelGridMouseListener);
+                //loopJPanel.setBounds( j*launcherData.pixelPerCell, i*launcherData.pixelPerCell, launcherData.pixelPerCell-2, launcherData.pixelPerCell-2);
+                //loopJPanel.addMouseListener(panelGridMouseListener);
+
+                //loopJPanel.add(new JLabel( "X: " + String.valueOf(j) ) );
+                //loopJPanel.add(new JLabel( "Y: " + String.valueOf(i) ) );
+
+                //loopJPanel.setName( String.valueOf(j) + "_" +String.valueOf(i) ); // "i_j" BAD WORK AROUND
+                //loopJPanel.setBackground(Color.LIGHT_GRAY);
+
+                gridPanel.add(loopJPanel);
+                TPA.add(loopJPanel);
+            }
+        }
+        
+        return TPA;
+    }
+    
+
     /**
      * @return Listener For Spinner
      */
@@ -251,7 +283,7 @@ public final class MainFrame extends JFrame {
                     return;
                 }
 
-                if(value%2==0){
+                if(value%2==0){ // No Even Values
                     if((int) eSource.getValue() > brushSize){
                         value++;
                     } else {
@@ -274,7 +306,7 @@ public final class MainFrame extends JFrame {
     private ActionListener createTheTimerActionListener(){
 
         return evt -> {
-            for(int i=0; i<2; i++)
+            for(int i=0; i<SIM_STEPS_PERUPDATE; i++)
                 gModel.takeStep();
 
             paintAllPanels();
@@ -403,7 +435,7 @@ public final class MainFrame extends JFrame {
     }
 
     private void m1ButtonClick(MouseEvent e){
-        XYMemory index = panelToModel( (JPanel) e.getComponent() );
+        XYMemory index = panelToModel( (GridPanel) e.getComponent() );
         switch (drawingMode) {
             case Start -> {
 
@@ -431,7 +463,7 @@ public final class MainFrame extends JFrame {
     }
 
     private void clickDrawWall(MouseEvent e){
-        XYMemory index = panelToModel( (JPanel) e.getComponent() );
+        XYMemory index = panelToModel( (GridPanel) e.getComponent() );
         switch(brushMode){
             case Point -> {
                 frameAllignedSetType(index.x,index.y, Cell.CellTypes.GRIDWALL);
@@ -487,38 +519,13 @@ public final class MainFrame extends JFrame {
         gModel.setTypeTo(x,y,type);
         setPanelColor(pointToPanel(x,y));
     }
-    private ArrayList<JPanel> setUpthePanelArray(){
 
-        JPanel loopJPanel;
-        ArrayList<JPanel> TPA = new ArrayList<>(launcherData.horizontalCellCount * launcherData.verticalCellCount);
-        
-        for(int i=0; i < launcherData.verticalCellCount;i++){
-            for(int j=0; j < launcherData.horizontalCellCount; j++){
-                
-                loopJPanel = new JPanel();
-                loopJPanel.setBounds( j*launcherData.pixelPerCell, i*launcherData.pixelPerCell, launcherData.pixelPerCell-2, launcherData.pixelPerCell-2);
-                loopJPanel.addMouseListener(panelGridMouseListener);
-
-                //loopJPanel.add(new JLabel( "X: " + String.valueOf(j) ) );
-                //loopJPanel.add(new JLabel( "Y: " + String.valueOf(i) ) );
-
-                loopJPanel.setName( String.valueOf(j) + "_" +String.valueOf(i) ); // "i_j" BAD WORK AROUND
-                loopJPanel.setBackground(Color.LIGHT_GRAY);
-
-                gridPanel.add(loopJPanel);
-                TPA.add(loopJPanel);
-            }
-        }
-        
-        return TPA;
-    }
-    
-    private JPanel pointToPanel(int x, int y){
+    private GridPanel pointToPanel(int x, int y){
         int index = gModel.findIndex(x, y);
         return thePanelArray.get(index);
     }
 
-    private JPanel indexToPanel(int index){
+    private GridPanel indexToPanel(int index){
         return thePanelArray.get(index);
     }
 
@@ -531,14 +538,15 @@ public final class MainFrame extends JFrame {
     private XYMemory indexToModel(int index){
         return panelToModel(indexToPanel(index));
     }
-    private XYMemory panelToModel(JPanel panel){
+    private XYMemory panelToModel(GridPanel panel){
 
         XYMemory mem = new XYMemory();
-        String[] split = panel.getName().split("_");
+        //String[] split = panel.getName().split("_");
         
         try{
-            int x = Integer.parseInt(split[0]);
-            int y = Integer.parseInt(split[1]);
+            //int x = Integer.parseInt(split[0]);
+            int x = panel.getJPoint();
+            int y = panel.getIPoint();
             int index = (( y * launcherData.horizontalCellCount) + x);
             //System.out.println(index);
             
@@ -560,7 +568,7 @@ public final class MainFrame extends JFrame {
      * Set The Given Panel To Its Model CounterPart
      * @param panel 
      */
-    private void setPanelColor(JPanel panel){
+    private void setPanelColor(GridPanel panel){
         XYMemory mem = panelToModel(panel);
         Cell c = gModel.cellGrid.get(mem.distance);
         switch (c.getType()) {
@@ -590,7 +598,7 @@ public final class MainFrame extends JFrame {
     }
     
     private void paintAllPanels(){
-        for (JPanel jPanel : thePanelArray) {
+        for (GridPanel jPanel : thePanelArray) {
             setPanelColor(jPanel);
         }
     }

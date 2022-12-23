@@ -1,12 +1,12 @@
 -------------------------------------------------------------------------------
 Test set: testPackage.gmodelTests
 -------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s - in testPackage.gmodelTests
-testPackage.gmodelTests.gModelFinalIndexMethodCheck  Time elapsed: 0.016 s
-testPackage.gmodelTests.gModelSetTypeToCheck  Time elapsed: 0.001 s
-testPackage.gmodelTests.gModelStartCheck  Time elapsed: 0 s
-testPackage.gmodelTests.gModelSetTypeToCheck_TWO  Time elapsed: 0.001 s
-testPackage.gmodelTests.gModelCorrectHeightCheck  Time elapsed: 0.001 s
-testPackage.gmodelTests.gModelResetStartCheck  Time elapsed: 0.001 s
-testPackage.gmodelTests.gModelCorrectWidthCheck  Time elapsed: 0 s
-testPackage.gmodelTests.gModelCorrectCellArrayCheck  Time elapsed: 0 s
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.27 s - in testPackage.gmodelTests
+testPackage.gmodelTests.gModelFinalIndexMethodCheck  Time elapsed: 0.089 s
+testPackage.gmodelTests.gModelSetTypeToCheck  Time elapsed: 0.017 s
+testPackage.gmodelTests.gModelStartCheck  Time elapsed: 0.011 s
+testPackage.gmodelTests.gModelSetTypeToCheck_TWO  Time elapsed: 0.011 s
+testPackage.gmodelTests.gModelCorrectHeightCheck  Time elapsed: 0.003 s
+testPackage.gmodelTests.gModelResetStartCheck  Time elapsed: 0.006 s
+testPackage.gmodelTests.gModelCorrectWidthCheck  Time elapsed: 0.007 s
+testPackage.gmodelTests.gModelCorrectCellArrayCheck  Time elapsed: 0.003 s
