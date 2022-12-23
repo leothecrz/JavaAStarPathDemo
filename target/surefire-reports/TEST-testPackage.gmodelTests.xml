@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-19.0.1\bin"/>
-    <property name="sun.java.command" value="C:\Users\LeothEcRz\AppData\Local\Temp\surefire8895036554586626377\surefirebooter-20221221175430324_3.jar C:\Users\LeothEcRz\AppData\Local\Temp\surefire8895036554586626377 2022-12-21T17-54-29_930-jvmRun1 surefire-20221221175430324_1tmp surefire_0-20221221175430324_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\LeothEcRz\AppData\Local\Temp\surefire9901893632310704235\surefirebooter-20221222130122889_3.jar C:\Users\LeothEcRz\AppData\Local\Temp\surefire9901893632310704235 2022-12-22T13-01-22_466-jvmRun1 surefire-20221222130122889_1tmp surefire_0-20221222130122889_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="Z:\Users\Repo\Java\aStarJPath\target\test-classes;Z:\Users\Repo\Java\aStarJPath\target\classes;C:\Users\LeothEcRz\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.6.0\junit-jupiter-api-5.6.0.jar;C:\Users\LeothEcRz\.m2\repository\org\apiguardian\apiguardian-api\1.1.0\apiguardian-api-1.1.0.jar;C:\Users\LeothEcRz\.m2\repository\org\opentest4j\opentest4j\1.2.0\opentest4j-1.2.0.jar;C:\Users\LeothEcRz\.m2\repository\org\junit\platform\junit-platform-commons\1.6.0\junit-platform-commons-1.6.0.jar;src/test/java/;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\LeothEcRz\AppData\Local\Temp\surefire8895036554586626377\surefirebooter-20221221175430324_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\LeothEcRz\AppData\Local\Temp\surefire9901893632310704235\surefirebooter-20221222130122889_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="19.0.1+10-21"/>
@@ -59,12 +59,12 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="63.0"/>
   </properties>
-  <testcase name="gModelFinalIndexMethodCheck" classname="testPackage.gmodelTests" time="0.015"/>
-  <testcase name="gModelSetTypeToCheck" classname="testPackage.gmodelTests" time="0.002"/>
-  <testcase name="gModelStartCheck" classname="testPackage.gmodelTests" time="0.001"/>
+  <testcase name="gModelFinalIndexMethodCheck" classname="testPackage.gmodelTests" time="0.016"/>
+  <testcase name="gModelSetTypeToCheck" classname="testPackage.gmodelTests" time="0.001"/>
+  <testcase name="gModelStartCheck" classname="testPackage.gmodelTests" time="0"/>
   <testcase name="gModelSetTypeToCheck_TWO" classname="testPackage.gmodelTests" time="0.001"/>
   <testcase name="gModelCorrectHeightCheck" classname="testPackage.gmodelTests" time="0.001"/>
-  <testcase name="gModelResetStartCheck" classname="testPackage.gmodelTests" time="0"/>
+  <testcase name="gModelResetStartCheck" classname="testPackage.gmodelTests" time="0.001"/>
   <testcase name="gModelCorrectWidthCheck" classname="testPackage.gmodelTests" time="0"/>
-  <testcase name="gModelCorrectCellArrayCheck" classname="testPackage.gmodelTests" time="0.001"/>
+  <testcase name="gModelCorrectCellArrayCheck" classname="testPackage.gmodelTests" time="0"/>
 </testsuite>
