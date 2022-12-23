@@ -42,7 +42,7 @@ public final class MainFrame extends JFrame {
     private final JMenuItem MIdrawmode1, MIdrawmode2, MIdrawmode3, MIdrawmode4, MIBrushPoint, MIBrushHLine, MIBrushVLine, MIBrushSquare, MIBrushCircle;
     private final JButton MIclear, MIstart, MIpause, MIdrawBorder, MImenu, MIbrush;
     private final JPanel gridPanel;
-
+    private final JSpinner brushSizeSpinner;
     private final JLabel statusLabel;
 
     private final MouseListener panelGridMouseListener;
@@ -83,7 +83,8 @@ public final class MainFrame extends JFrame {
         this.setPreferredSize(new Dimension(width, height));
         this.setSize(this.getPreferredSize());
         this.setLocationRelativeTo(null);
-        System.out.println(this.getSize());
+        
+        //System.out.println(this.getSize());
 
         //FacePanel
         JPanel facePanel = new JPanel(null);
@@ -205,7 +206,7 @@ public final class MainFrame extends JFrame {
             MIbrush.addActionListener(mainListener);
         }
 
-        JSpinner brushSizeSpinner = new JSpinner();
+        brushSizeSpinner = new JSpinner();
         brushSizeSpinner.setPreferredSize(new Dimension(toolbar.getSize().width/40, toolbar.getHeight()-1 ));
         brushSizeSpinner.addChangeListener(createSpinnerChangeListener());
 
@@ -283,7 +284,13 @@ public final class MainFrame extends JFrame {
                     return;
                 }
 
-                if(value%2==0){ // No Even Values
+                if(drawingMode == drawModes.Start || drawingMode == drawModes.End || brushMode == brushModes.Point){
+                    eSource.setValue(1);
+                    brushSize = 1;
+                    return;
+                }
+
+                if( (brushMode == brushModes.H_Line) && value%2==0){ // No Even Values
                     if((int) eSource.getValue() > brushSize){
                         value++;
                     } else {
@@ -359,11 +366,15 @@ public final class MainFrame extends JFrame {
                     drawingMode = drawModes.Start;
                     MIBrushPoint.setSelected(true);
                     brushMode = brushModes.Point;
+                    brushSize = 1;
+                    brushSizeSpinner.setValue(1);
                 }
                 case "DM2" -> {
                     drawingMode = drawModes.End;
                     MIBrushPoint.setSelected(true);
                     brushMode = brushModes.Point;
+                    brushSize = 1;
+                    brushSizeSpinner.setValue(1);
                 }
                 case "DM3" -> drawingMode = drawModes.Wall;
                 case "MenuDrawBorder" -> drawBorder();
