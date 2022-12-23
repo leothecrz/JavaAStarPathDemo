@@ -279,18 +279,21 @@ public final class MainFrame extends JFrame {
                 var eSource = (JSpinner)(e.getSource());
                 int value = (int) eSource.getValue();
 
-                if(value < 1){ // Set Min Value
-                    eSource.setValue(brushSize);
-                    return;
-                }
-
+                // Brush Size Limits For MODE:START, MODE:END, and BRUSH:PIXEL
                 if(drawingMode == drawModes.Start || drawingMode == drawModes.End || brushMode == brushModes.Point){
                     eSource.setValue(1);
                     brushSize = 1;
                     return;
                 }
 
-                if( (brushMode == brushModes.H_Line) && value%2==0){ // No Even Values
+                // Set Min Value
+                if(value < 1){ 
+                    eSource.setValue(brushSize);
+                    return;
+                }
+
+                // No Even Values FOR HORIZONTAL BRUSH
+                if( (brushMode == brushModes.H_Line) && value%2==0){ 
                     if((int) eSource.getValue() > brushSize){
                         value++;
                     } else {
@@ -445,6 +448,10 @@ public final class MainFrame extends JFrame {
         
     }
 
+    /**
+     * MI CLick On Panel Grids
+     * @param e
+     */
     private void m1ButtonClick(MouseEvent e){
         XYMemory index = panelToModel( (GridPanel) e.getComponent() );
         switch (drawingMode) {

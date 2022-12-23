@@ -150,6 +150,7 @@ public class GridModel {
         Cell activeCell = cellGrid.get(findIndex(x, y));
         int totalDelta;
 
+        
         if(deltaX > deltaY){
             totalDelta = (14*deltaY) + 10*(deltaX-deltaY);
             activeCell.setH_Cost(totalDelta);
@@ -161,13 +162,14 @@ public class GridModel {
         activeCell.updateFCost();
         return totalDelta;
         
-        /**
+        
+        /*
         deltaX = deltaX * deltaX;
         deltaY = deltaY * deltaY;
         
-        double totalDelta = Math.sqrt( deltaX + deltaY );
+        totalDelta = (int) Math.sqrt( deltaX + deltaY );
         
-        Cell activeCell = cellGrid.get(findIndex(x, y));
+        activeCell = cellGrid.get(findIndex(x, y));
         activeCell.setH_Cost(totalDelta);
         activeCell.updateFCost();
         
