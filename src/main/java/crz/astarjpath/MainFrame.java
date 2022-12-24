@@ -27,13 +27,13 @@ import javax.swing.event.ChangeListener;
 public final class MainFrame extends JFrame {
 
     private final static int TIMER_INTERVAL_LENGTH = 0;
-    private final static int SIM_STEPS_PERUPDATE= 1;
+    private final static int SIM_STEPS_PER_UPDATE= 1;
 
-    public static enum drawModes{
+    public enum drawModes{
         Start, End, Wall, Erase
     }
 
-    public static enum brushModes{
+    public enum brushModes{
         Point, H_Line, V_Line, Square, Circle,
     }
 
@@ -239,7 +239,9 @@ public final class MainFrame extends JFrame {
 
     }
 
-        
+    /**
+     * @return ArrayList holding all the Panels in the grid. Adds the Panels To Frame.
+     */
     private ArrayList<GridPanel> setUpthePanelArray(){
 
         GridPanel loopJPanel;
@@ -247,20 +249,21 @@ public final class MainFrame extends JFrame {
         
         for(int i=0; i < launcherData.verticalCellCount;i++){
             for(int j=0; j < launcherData.horizontalCellCount; j++){
-                
-                //loopJPanel = new JPanel();
+
                 loopJPanel = new GridPanel(launcherData, i, j, panelGridMouseListener);
-                //loopJPanel.setBounds( j*launcherData.pixelPerCell, i*launcherData.pixelPerCell, launcherData.pixelPerCell-2, launcherData.pixelPerCell-2);
-                //loopJPanel.addMouseListener(panelGridMouseListener);
+                {
+                    //loopJPanel.setBounds( j*launcherData.pixelPerCell, i*launcherData.pixelPerCell, launcherData.pixelPerCell-2, launcherData.pixelPerCell-2);
+                    //loopJPanel.addMouseListener(panelGridMouseListener);
 
-                //loopJPanel.add(new JLabel( "X: " + String.valueOf(j) ) );
-                //loopJPanel.add(new JLabel( "Y: " + String.valueOf(i) ) );
+                    //loopJPanel.add(new JLabel( "X: " + String.valueOf(j) ) );
+                    //loopJPanel.add(new JLabel( "Y: " + String.valueOf(i) ) );
 
-                //loopJPanel.setName( String.valueOf(j) + "_" +String.valueOf(i) ); // "i_j" BAD WORK AROUND
-                //loopJPanel.setBackground(Color.LIGHT_GRAY);
-
+                    //loopJPanel.setName( String.valueOf(j) + "_" +String.valueOf(i) ); // "i_j" BAD WORK AROUND
+                    //loopJPanel.setBackground(Color.LIGHT_GRAY);
+                }
                 gridPanel.add(loopJPanel);
                 TPA.add(loopJPanel);
+
             }
         }
         
@@ -269,6 +272,7 @@ public final class MainFrame extends JFrame {
     
 
     /**
+     * Handles State Changes For Brush Size Spinner
      * @return Listener For Spinner
      */
     private ChangeListener createSpinnerChangeListener(){
@@ -316,7 +320,7 @@ public final class MainFrame extends JFrame {
     private ActionListener createTheTimerActionListener(){
 
         return evt -> {
-            for(int i=0; i<SIM_STEPS_PERUPDATE; i++)
+            for(int i=0; i<SIM_STEPS_PER_UPDATE; i++)
                 gModel.takeStep();
 
             paintAllPanels();
@@ -332,7 +336,7 @@ public final class MainFrame extends JFrame {
     
     /**
      * ToolBar ActionListener
-     * @return 
+     * @return Listener Responsible For Handling ToolBar Button Presses.
      */
     private ActionListener createTheToolBarListener(){
 
@@ -403,7 +407,7 @@ public final class MainFrame extends JFrame {
     
     /**
      * PANEL GRID LISTENER
-     * @return 
+     * @return MouseListener That handles mouse events on the grid panels.
      */
     private MouseListener setupMouseListener(){
 
@@ -420,30 +424,36 @@ public final class MainFrame extends JFrame {
                 }
 
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
             @Override
             public void mouseEntered(MouseEvent e) {
-                if(running)
+                if(running) // Only Run When Status = Not Running
                     return;
+
+                GridPanel activePanel = (GridPanel) e.getSource();
+                activePanel.setBackground(activePanel.getBackground().brighter());
 
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                if(running)
+                if(running) // Only Run When Status = Not Running
                     return;
 
+                GridPanel activePanel = (GridPanel) e.getSource();
+                setPanelColor(activePanel);
+
             }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                return;
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                return;
+            }
+
         };
         
     }
@@ -559,32 +569,30 @@ public final class MainFrame extends JFrame {
     private XYMemory panelToModel(GridPanel panel){
 
         XYMemory mem = new XYMemory();
-        //String[] split = panel.getName().split("_");
-        
-        try{
-            //int x = Integer.parseInt(split[0]);
-            int x = panel.getJPoint();
-            int y = panel.getIPoint();
-            int index = (( y * launcherData.horizontalCellCount) + x);
-            //System.out.println(index);
-            
-            mem.x = x;
-            mem.y = y;
-            mem.distance = index;
-            
-        } catch (NumberFormatException NFE){
-            System.err.println(" Object: ");
-            System.err.println(panel);
-            System.err.println(" Not Set Up Correctly \n\n");
-            return new XYMemory();
-        }
-        
+
+        int x = panel.getJPoint();
+        int y = panel.getIPoint();
+        int index = (( y * launcherData.horizontalCellCount) + x);
+
+        mem.x = x;
+        mem.y = y;
+        mem.distance = index;
+
         return mem;
     }
-    
+
+    /**
+     * Update All Panel Colors
+     */
+    private void paintAllPanels(){
+        for (GridPanel jPanel : thePanelArray) {
+            setPanelColor(jPanel);
+        }
+    }
+
     /**
      * Set The Given Panel To Its Model CounterPart
-     * @param panel 
+     * @param panel - Panel That Will Have Its Color Changed
      */
     private void setPanelColor(GridPanel panel){
         XYMemory mem = panelToModel(panel);
@@ -614,17 +622,14 @@ public final class MainFrame extends JFrame {
             default -> throw new AssertionError();
         }
     }
-    
-    private void paintAllPanels(){
-        for (GridPanel jPanel : thePanelArray) {
-            setPanelColor(jPanel);
-        }
-    }
-    
+
+    /**
+     * Run GModel method To Change Border Panels To Walls
+     * Update all panels to reflect the change.
+     */
     private void drawBorder(){
         gModel.drawBorder();
         paintAllPanels();
     }
 
-    
 }

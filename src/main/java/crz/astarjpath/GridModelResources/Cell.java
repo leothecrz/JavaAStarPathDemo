@@ -19,8 +19,7 @@ public final class Cell {
     private CellTypes type;
     private final int x;
     private final int y;
-    
-    
+
     private double G_Cost = Double.POSITIVE_INFINITY;
     private double H_Cost = Double.POSITIVE_INFINITY;
     private double F_Cost = Double.POSITIVE_INFINITY;
@@ -104,7 +103,5 @@ public final class Cell {
     public int getY() {
         return y;
     }
-    
-    
-    
+
 }

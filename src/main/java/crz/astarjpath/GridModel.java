@@ -75,9 +75,7 @@ public class GridModel {
         currentDrawPath = new XYMemory();
         
         cellGrid = new ArrayList<>(width*height);
-        
-        //cameFrom = new ArrayList<>(); //
-        
+
         cellsPriorityQueue = new PriorityQueue<>((Cell o1, Cell o2) -> {
             if(o1.getF_Cost() > o2.getF_Cost())
                 return 1;
@@ -101,37 +99,31 @@ public class GridModel {
         while(!cellGrid.isEmpty()){
             cellGrid.remove(cellGrid.size()-1);
         }
-        
-        //while(!cameFrom.isEmpty()){
-        //    cameFrom.remove(cameFrom.size()-1);
-        //}
-        //
+
         for(int i=0; i<this.height; i++){
             for(int j=0; j <this.width; j++){
                 cellGrid.add(new Cell(j, i));
-        //        cameFrom.add(-1);
             }
         }
         
     }
-    
+
+    /**
+     * Uses X and Y to calculate the index. Does Not Range Check.
+     * @param x
+     * @param y
+     * @return Index of (X,Y) Panel
+     */
     public int findIndex(int x, int y){
         return ((y*this.width) + x);
     }
     
     public void setTypeTo(int x, int y, CellTypes type){
         cellGrid.get(findIndex(x, y)).setType(type);
-        
-        if(type == CellTypes.END){
-            this.GoalX = x;
-            this.GoalY = y;
-        }
-        
     }
     
     public void setTypeTo(int index, CellTypes type){
         cellGrid.get(index).setType(type);
-        
     }
     
     public CellTypes getCellTypes(int x, int y){
@@ -150,19 +142,18 @@ public class GridModel {
         Cell activeCell = cellGrid.get(findIndex(x, y));
         int totalDelta;
 
-        
-        if(deltaX > deltaY){
-            totalDelta = (14*deltaY) + 10*(deltaX-deltaY);
+        if(deltaX > deltaY){ //Delta X
+            totalDelta = (14 * deltaY) + (10 * (deltaX - deltaY));
             activeCell.setH_Cost(totalDelta);
             activeCell.updateFCost();
             return totalDelta;
-        }
-        totalDelta = (14*deltaX) + 10 *(deltaY - deltaX);
+        } //Delta Y
+        totalDelta = (14 * deltaX) + (10 * (deltaY - deltaX));
         activeCell.setH_Cost(totalDelta);
         activeCell.updateFCost();
+
         return totalDelta;
-        
-        
+
         /*
         deltaX = deltaX * deltaX;
         deltaY = deltaY * deltaY;
@@ -175,7 +166,6 @@ public class GridModel {
         
         return activeCell.getH_Cost();
         */
-        
     }
     
     private boolean notWall(int x, int y){
@@ -385,29 +375,5 @@ public class GridModel {
             this.drawGridWall(0, i);
         }
     }
-    
-    
-    /*
-    public static void main(String[] args){
-        
-        GridModel gModel = new GridModel(7, 7);
-        gModel.pathFound = false;
-       
-        gModel.StartingX = 4;
-        gModel.StartingY = 0;
-        gModel.resetStart(4, 0);
-        gModel.GoalX = 4;
-        gModel.GoalY = 4;
-        
-        gModel.cellGrid.get( gModel.findIndex(4,0) ).setType(CellTypes.START);
-        gModel.cellGrid.get( gModel.findIndex(4,4) ).setType(CellTypes.END);
-        
-        while(! ( (gModel.currentDrawPath.x == gModel.StartingX) && (gModel.currentDrawPath.y == gModel.StartingY) ) ){
-            gModel.takeStep();
-        }
-        
-        
-    }
-    */
-    
+
 }
