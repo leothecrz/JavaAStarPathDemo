@@ -60,31 +60,31 @@ public final class MainFrame extends JFrame {
     private int brushSize;
 
     public MainFrame(SetupSizes setupSizes){
-        
         super();
 
         //Variables
         statusLabel = new JLabel("Status: Paused");
         launcherData = setupSizes;
-        drawingMode = drawModes.Wall;
-        brushMode = brushModes.Point;
+        drawingMode = drawModes.Wall; //Default
+        brushMode = brushModes.Point; //Default
         running = false;
         brushSize = 1;
+
         gModel = new GridModel(launcherData.horizontalCellCount, launcherData.verticalCellCount);
 
         //Properties
-        String FRAME_TITTLE = "A Star Path Finding Demo";
-        this.setTitle(FRAME_TITTLE);
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
-        this.setResizable(true);
-        int width = Math.round( (float)launcherData.getHorizontalLength() * 1.020408f );
-        int height = Math.round( (float)launcherData.getVerticalLength() * 1.105263f );
-        this.setPreferredSize(new Dimension(width, height));
-        this.setSize(this.getPreferredSize());
-        this.setLocationRelativeTo(null);
-        
-        //System.out.println(this.getSize());
+        {
+            String FRAME_TITTLE = "A Star Path Finding Demo";
+            this.setTitle(FRAME_TITTLE);
+            this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+            this.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+            this.setResizable(false);
+            int frameWidth = Math.round((float) launcherData.getHorizontalLength() * 1.020408f);
+            int frameHeight = Math.round((float) launcherData.getVerticalLength() * 1.105263f);
+            this.setPreferredSize(new Dimension(frameWidth, frameHeight));
+            this.setSize(this.getPreferredSize());
+            this.setLocationRelativeTo(null);
+        }
 
         //FacePanel
         JPanel facePanel = new JPanel(null);
@@ -105,9 +105,9 @@ public final class MainFrame extends JFrame {
         toolbar = new JToolBar(JToolBar.HORIZONTAL);
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
+        toolbar.setBackground(Color.lightGray);
         toolbar.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
         toolbar.setBounds(0, 0, this.getSize().width, (int) (Math.floor( ((float)this.getSize().height * 4f))/100f) ); //
-        facePanel.add(toolbar);
 
         //Tool Bar Brush Menu
         {
@@ -205,11 +205,10 @@ public final class MainFrame extends JFrame {
             MIbrush.setActionCommand("MenuBrush");
             MIbrush.addActionListener(mainListener);
         }
-
+        // Brush Size Spinner
         brushSizeSpinner = new JSpinner();
-        brushSizeSpinner.setPreferredSize(new Dimension(toolbar.getSize().width/40, toolbar.getHeight()-1 ));
+        brushSizeSpinner.setPreferredSize(new Dimension(toolbar.getSize().width/40, toolbar.getHeight()-4 ));
         brushSizeSpinner.addChangeListener(createSpinnerChangeListener());
-
         brushSizeSpinner.setValue(1);
 
         toolbar.add(statusLabel);
@@ -225,18 +224,16 @@ public final class MainFrame extends JFrame {
         gridPanel = new JPanel(null);
         int x = (int) Math.floor(( (double)this.getSize().width * 0.01));
         int y = (int) Math.floor(( (double)this.getSize().height * 0.05));
-        System.out.println(x + " :X | Y: " + y);
-        thePanelArray = setUpthePanelArray();
         gridPanel.setBounds(x, y, launcherData.getHorizontalLength(), launcherData.getVerticalLength());
         gridPanel.setBackground(Color.BLACK);
-        
-        facePanel.add(gridPanel);
-        this.add(facePanel);
-        
-        //System.out.println(this.getSize());
-        System.out.println(gridPanel.getBounds());
-        //System.out.println(toolbar.getSize());
 
+        thePanelArray = setUpthePanelArray();
+
+        facePanel.add(toolbar);
+        facePanel.add(gridPanel);
+
+
+        this.add(facePanel);
     }
 
     /**
@@ -481,20 +478,20 @@ public final class MainFrame extends JFrame {
 
             }
             case Wall ->
-                    clickDrawWall(e);
+                clickDrawWall(e , Cell.CellTypes.GRIDWALL);
 
             case Erase ->
-                frameAllignedSetType(index.x,index.y, Cell.CellTypes.EMPTY);
+                clickDrawWall(e, Cell.CellTypes.EMPTY);
 
             default -> throw new AssertionError();
         }
     }
 
-    private void clickDrawWall(MouseEvent e){
+    private void clickDrawWall(MouseEvent e, Cell.CellTypes c){
         XYMemory index = panelToModel( (GridPanel) e.getComponent() );
         switch(brushMode){
             case Point -> {
-                frameAllignedSetType(index.x,index.y, Cell.CellTypes.GRIDWALL);
+                frameAllignedSetType(index.x,index.y, c);
             }
             case Circle -> {
             }
@@ -528,15 +525,19 @@ public final class MainFrame extends JFrame {
                     if(j == null)
                         continue;
                     XYMemory activeMem = indexToModel(j);
-                    frameAllignedSetType(activeMem.x, activeMem.y, Cell.CellTypes.GRIDWALL);
+                    frameAllignedSetType(activeMem.x, activeMem.y, c);
                     System.out.println(j);
                 }
             }
-            case Square -> {
-            }
             case V_Line -> {
+
+
+            }
+            case Square -> {
+
             }
             default -> {
+                System.out.println("NO BRUSH ERROR");
                 return;
             }
         };
@@ -562,7 +563,6 @@ public final class MainFrame extends JFrame {
      * @param
      * @return 
      */
-
     private XYMemory indexToModel(int index){
         return panelToModel(indexToPanel(index));
     }
