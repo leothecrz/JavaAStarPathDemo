@@ -1,7 +1,7 @@
 
 package testPackage;
 
-import crz.astarjpath.GridModel;
+import crz.astarjpath.AStartModel;
 import crz.astarjpath.GridModelResources.Cell;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
@@ -19,14 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class gmodelTests {
     
-    private static GridModel gModel;
+    private static AStartModel gModel;
     
     public gmodelTests() {
     }
 
     @BeforeAll
     public static void setUpClass(){
-        gModel = new GridModel(5, 5);
+        gModel = new AStartModel(5, 5);
     }
 
     @AfterAll
@@ -44,9 +44,9 @@ public class gmodelTests {
 
     @Test
     public void gModelStartCheck(){
-        GridModel GM = new GridModel(10,5);
-        boolean setupOk = !GM.endSet;
-        if(GM.startSet){
+        AStartModel GM = new AStartModel(10,5);
+        boolean setupOk = !GM.isEndSet;
+        if(GM.isStartSet){
             setupOk = false;
         }
         if(GM.pathFound){
@@ -103,7 +103,7 @@ public class gmodelTests {
     @Test
     public void gModelResetStartCheck(){
         gModel.resetStart(1,2);
-        boolean setupOK = gModel.startSet;
+        boolean setupOK = gModel.isStartSet;
          if(1 != gModel.StartingX)
             setupOK=false;
         if(2 != gModel.StartingY)

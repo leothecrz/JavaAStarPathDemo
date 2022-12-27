@@ -1,50 +1,40 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package crz.astarjpath;
 
 import crz.astarjpath.GridModelResources.Cell;
+import crz.astarjpath.GridModelResources.CellFCostComparator;
 import crz.astarjpath.GridModelResources.Cell.CellTypes;
+
 import crz.astarjpath.GridModelResources.XYMemory;
+
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import java.awt.Point;
+
+
 
 
 /**
  *
  * @author LeothEcRz
  */
-public class GridModel {
+public class AStartModel {
     
-    public int width;
-    public int height;
+    public int width, height;
+    public int StartingX,  StartingY;
+    public int GoalX, GoalY;
     
-    public int StartingX;
-    public int StartingY;
+    public boolean pathFound, pathDrawn;
     
-    public int GoalX;
-    public int GoalY;
+    public boolean isStartSet, isEndSet;
     
-    public boolean pathFound;
-    public boolean pathDrawn;
-    
-    public boolean startSet;
-    public boolean endSet;
-    
-    public int stepsTaken;
-    
-    
+    public int simStepsTaken;
+
     /**
      * Grid of Cells
      */
     public ArrayList<Cell> cellGrid;
-    
-    /**
-     * Path Memory
-     */
-    //ArrayList<Integer> cameFrom;
-    
+
     /**
      * The Open Set
      */
@@ -54,35 +44,33 @@ public class GridModel {
      * A Step's Memory of its neighbors.
      */
     ArrayList<XYMemory> neighbors;
+    ArrayList<Point> newNeighborsList;
 
     /**
      * DrawingPath Pointer
      */
     XYMemory currentDrawPath;
+    Point activeDrawPath;
     
     /**
      * 
      * @param width
      * @param height 
      */
-    public GridModel(int width, int height){
-        
-        pathFound = false;
-        pathDrawn = false;
-        startSet = false;
-        endSet = false;
-        stepsTaken = 0;
+    public AStartModel(int width, int height){
+    
+        simStepsTaken = 0;
+        pathFound = pathDrawn = false;
+        isStartSet = isEndSet = false;
         currentDrawPath = new XYMemory();
+        activeDrawPath = new Point(-1, -1);
+        GoalX = GoalY = StartingX = StartingY = -1;
         
-        cellGrid = new ArrayList<>(width*height);
+        cellGrid = new ArrayList<>(width*height); // PreAllocate Space;
 
-        cellsPriorityQueue = new PriorityQueue<>((Cell o1, Cell o2) -> {
-            if(o1.getF_Cost() > o2.getF_Cost())
-                return 1;
-            return 0; });
-        
+        cellsPriorityQueue = new PriorityQueue<>( new CellFCostComparator() );
         setNewSize(width, height);
-        StartingX = StartingY = -1;
+        
     }
     
     /**
@@ -181,18 +169,18 @@ public class GridModel {
         pathFound = false;
         pathDrawn = false;
         
-        if(startSet)
+        if(isStartSet)
             clearStart();
         
-        if(endSet)
+        if(isEndSet)
             clearGoal();
         
     }
     
     public void resetGoal(int x, int y){
-        if(endSet)
+        if(isEndSet)
             clearGoal();
-        endSet = true;
+        isEndSet = true;
         this.GoalX = x;
         this.GoalY = y;
         setTypeTo(GoalX, GoalY, CellTypes.END);
@@ -205,7 +193,7 @@ public class GridModel {
     public void resetStart(int x, int y){
         
         //Reset previous start if one has already been set
-        if(startSet)
+        if(isStartSet)
             clearStart();
         
         if(!cellsPriorityQueue.isEmpty())
@@ -221,7 +209,7 @@ public class GridModel {
         activeCell.setType(CellTypes.START);
         cellsPriorityQueue.add(activeCell);
         
-        startSet = true;
+        isStartSet = true;
         pathFound = false;
     }
     
@@ -242,7 +230,7 @@ public class GridModel {
     }
     
     public void takeStep(){
-        stepsTaken++;
+        simStepsTaken++;
         if(pathFound){
             
             if(currentDrawPath.x == StartingX && currentDrawPath.y == StartingY){

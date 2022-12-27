@@ -49,7 +49,7 @@ public final class MainFrame extends JFrame {
     
     private final ArrayList<GridPanel> thePanelArray;
     
-    private final GridModel gModel; 
+    private final AStartModel gModel; 
     
     private final SetupSizes launcherData;
     private final Timer modelTimer;
@@ -70,7 +70,7 @@ public final class MainFrame extends JFrame {
         running = false;
         brushSize = 1;
 
-        gModel = new GridModel(launcherData.horizontalCellCount, launcherData.verticalCellCount);
+        gModel = new AStartModel(launcherData.horizontalCellCount, launcherData.verticalCellCount);
 
         //Properties
         {
@@ -324,7 +324,7 @@ public final class MainFrame extends JFrame {
 
             if(gModel.pathDrawn){
                 this.modelTimer.stop();
-                System.out.println(" Path Found - END | Steps Taken: " + String.valueOf(gModel.stepsTaken));
+                System.out.println(" Path Found - END | Steps Taken: " + String.valueOf(gModel.simStepsTaken));
                 statusLabel.setText("Status: Paused");
             }
         };
@@ -464,14 +464,14 @@ public final class MainFrame extends JFrame {
         switch (drawingMode) {
             case Start -> {
 
-                if(gModel.startSet)
+                if(gModel.isStartSet)
                     frameAllignedSetType(gModel.StartingX,gModel.StartingY, Cell.CellTypes.EMPTY);
                 gModel.resetStart(index.x, index.y);
                 frameAllignedSetType(index.x, index.y, Cell.CellTypes.START);
             }
             case End -> {
 
-                if(gModel.endSet)
+                if(gModel.isEndSet)
                     frameAllignedSetType(gModel.GoalX,gModel.GoalY, Cell.CellTypes.EMPTY);
                 gModel.resetGoal(index.x, index.y);
                 frameAllignedSetType(index.x,index.y, Cell.CellTypes.END);

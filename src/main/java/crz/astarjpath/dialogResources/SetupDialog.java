@@ -19,7 +19,6 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 
 /**
- *
  * @author LeothEcRz
  */
 public final class SetupDialog extends JDialog{
@@ -28,7 +27,7 @@ public final class SetupDialog extends JDialog{
     public static float MAX_GRID_HEIGHT_PERCENT = 0.9212f;
    
     private final JButton okButton;
-    private final ActionListener listener;
+    private final ActionListener okListener;
     private SetupSizes setupSizes;
     
     private final JTextField verticalCellCountField;
@@ -44,14 +43,16 @@ public final class SetupDialog extends JDialog{
         super();
         
         // Variables
-        listener = AL;
+        okListener = AL;
         
         // Set Dialog Size
         Dimension screenSize = AStarJPath.getScreenSize();
         Dimension size = new Dimension();
-        size.setSize( (screenSize.width / 4),
-                screenSize.height/ 4);
+        size.setSize( (screenSize.width / 3),
+                screenSize.height/ 3);
         setSize(size);
+        setPreferredSize(size);
+        setTitle("A Start Setup Dialog");
         
         // Properties
         setModal(true);
@@ -68,41 +69,46 @@ public final class SetupDialog extends JDialog{
         c.weightx = 1;
         c.weighty = 1;
         
-        // Pixel Per
+        // Pixel Per Field
+        {
         c.gridx = 1;
         c.gridy = 2;
         pixelPerCellField = new JTextField();
         pixelPerCellField.setText("");
         pixelPerCellField.setHorizontalAlignment(JTextField.CENTER);
         add(pixelPerCellField, c);
-        
-        // Horizontal
+        }
+        // Horizontal Field
+        {
         c.gridx = 3;
         c.gridy = 2;
         horizontalCellCountField = new JTextField();
         horizontalCellCountField.setText("");
         horizontalCellCountField.setHorizontalAlignment(JTextField.CENTER);
-
         add(horizontalCellCountField, c);
-        
-        // Vertical
+        }
+        // Vertical Field
+        {
         c.gridx = 5;
         c.gridy = 2;
         verticalCellCountField = new JTextField();
         verticalCellCountField.setText("");
         verticalCellCountField.setHorizontalAlignment(JTextField.CENTER);
-
         add(verticalCellCountField, c);
+        }
         
-        //OKButton
+        // ALL
         c.ipadx = 0;
+
+        //Buttons
+        {
+        //OKButton
         c.gridx = 3;
         c.gridy = 4;        
         okButton = new JButton();
-        //okButton.addActionListener(listener);
         okButton.setAction(setOkButtonPreAction());
-        //okButton.setActionCommand("DialogOK");
         okButton.setText("OK");
+        okButton.setMnemonic('o');
         add(okButton, c);
         
         //MaxButton
@@ -111,6 +117,7 @@ public final class SetupDialog extends JDialog{
         JButton maxButton = new JButton();
         maxButton.setAction(setMaxButtonAction(this.getContentPane()));
         maxButton.setText("Max With Current PPC");
+        maxButton.setMnemonic('m');
         add(maxButton, c);
         
         //OverrideButton
@@ -121,8 +128,10 @@ public final class SetupDialog extends JDialog{
         overrideButton.addItemListener(setOverideButtonActionListener());
         overrideButton.setSelected(true);
         add(overrideButton, c);
-        
+        }
+
         //Labels
+        {
         JLabel vCountLabel = new JLabel("Vertical Count: ");
         vCountLabel.setHorizontalTextPosition(JLabel.CENTER);
         c.gridx = 5;
@@ -140,6 +149,7 @@ public final class SetupDialog extends JDialog{
         c.gridx = 1;
         c.gridy = 1;
         add(pixelPerLabel, c);
+        }
     }
     
     /**
@@ -147,6 +157,7 @@ public final class SetupDialog extends JDialog{
      * @return The Action Performed by the setupDialog's OK button before The ActionListener
      */
     private AbstractAction setOkButtonPreAction(){
+        ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "DialogOK", 0);
         return new AbstractAction() {
             
             @Override
@@ -161,7 +172,7 @@ public final class SetupDialog extends JDialog{
                 setupSizes = new SetupSizes(Integer.parseInt(pixelPerCellField.getText()), // Pixel Per Cell
                         Integer.parseInt(horizontalCellCountField.getText()), // H Count
                         Integer.parseInt(verticalCellCountField.getText())); // V Count
-                System.out.println(setupSizes.toString());
+                //System.out.println(setupSizes.toString());
 
                 Dimension screenSize = AStarJPath.getScreenSize();
                 String tooBigMessage = "The input values will create a window that is larger than the screen allows";
@@ -171,12 +182,12 @@ public final class SetupDialog extends JDialog{
                 if(!overrideLimit){
                     
                     int gridMaxWidth = Math.round( MAX_GRID_WIDTH_PERCENT * (float)screenSize.getWidth() );
-                    System.out.println("\n GM H: " + setupSizes.getHorizontalLength());
-                        System.out.print(" PossibleMAX:" + gridMaxWidth);
+                    // System.out.println("\n GM H: " + setupSizes.getHorizontalLength());
+                    // System.out.print(" PossibleMAX:" + gridMaxWidth);
                     
                     int gridMaxHeight = Math.round( MAX_GRID_HEIGHT_PERCENT *  (float)screenSize.getHeight() );
-                    System.out.println("\n GM V: " + setupSizes.getVerticalLength());
-                        System.out.print(" PossibleMAX:" + gridMaxHeight);
+                    // System.out.println("\n GM V: " + setupSizes.getVerticalLength());
+                    // System.out.print(" PossibleMAX:" + gridMaxHeight);
                         
                     if( setupSizes.getHorizontalLength() >= gridMaxWidth){ //Horizontal
                         JOptionPane.showMessageDialog(((JButton)e.getSource()).getParent(), tooBigMessage + " .H.", tooBigTittle, JOptionPane.ERROR_MESSAGE);
@@ -188,8 +199,7 @@ public final class SetupDialog extends JDialog{
                     }
                 }
                 
-                ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "DialogOK", 0);
-                listener.actionPerformed(event);
+                okListener.actionPerformed(event);
         } }; 
     }
     
@@ -199,7 +209,6 @@ public final class SetupDialog extends JDialog{
      * @return 
      */
     private AbstractAction setMaxButtonAction(Container comp){
-        
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -239,21 +248,18 @@ public final class SetupDialog extends JDialog{
     }
     
     /**
-     * 
+     * Toggle Controlss For Override Button
      * @return 
      */
     private ItemListener setOverideButtonActionListener(){
         return (ItemEvent e) -> {
-            
             if( ((JToggleButton) e.getItem()).isSelected() ){
                 ((JToggleButton) e.getItem()).setText("Override OFF");
                 overrideLimit = false;
-            }else{
-                ((JToggleButton) e.getItem()).setText("Override ON ");
-                overrideLimit = true;
+                return;
             }
-            System.out.println(overrideLimit);
-
+            ((JToggleButton) e.getItem()).setText("Override ON ");
+            overrideLimit = true;
         };
     }
     
@@ -293,7 +299,6 @@ public final class SetupDialog extends JDialog{
     }
     
     /**
-     * 
      * @return True - if limit is set to override.
      */
     public boolean getOverride(){

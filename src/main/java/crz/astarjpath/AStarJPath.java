@@ -9,6 +9,10 @@ import java.awt.Toolkit;
 //Main
 import javax.swing.SwingUtilities;
 
+
+/**
+ * Entry Point and Runs Projecr in the event dispactch thread. 
+ */
 public class AStarJPath {
 
     public static Dimension getScreenSize(){
@@ -16,12 +20,7 @@ public class AStarJPath {
     }
     
     public static void main(String[] args) {
-        
         SwingUtilities.invokeLater(Launcher::new);
-
-
     }
-    
-    
-    
+
 }
